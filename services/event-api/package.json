@@ -2,14 +2,28 @@
   "name": "event-api",
   "version": "1.0.0",
   "description": "event api",
-  "main": "index.js",
+  "main": "dist/server.js",
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "author": "ajil",
   "license": "ISC",
   "devDependencies": {
+    "@types/amqplib": "^0.10.8",
+    "@types/express": "^5.0.6",
     "@types/node": "^25.0.9",
+    "@types/pg": "^8.16.0",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.9",
+    "express": "^5.2.1",
+    "pg": "^8.17.1",
+    "uuid": "^13.0.0",
+    "zod": "^4.3.5"
   }
 }
