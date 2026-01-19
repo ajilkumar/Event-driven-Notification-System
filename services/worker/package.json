@@ -1,0 +1,15 @@
+{
+  "name": "worker",
+  "version": "1.0.0",
+  "description": "worker",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "ajil",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^25.0.9",
+    "typescript": "^5.9.3"
+  }
+}
