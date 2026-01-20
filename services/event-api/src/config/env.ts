@@ -1,3 +1,4 @@
+import "dotenv/config";
 import * as z from "zod";
 
 const eventSchema = z.object({
