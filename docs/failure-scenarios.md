@@ -82,3 +82,68 @@ impacting normal message flow.
 By explicitly modeling failure scenarios, the system ensures correctness
 and reliability even under adverse conditions.
 
+### Failure During Notification Delivery
+
+**What Happens**
+- A notification attempt fails due to network timeout or external service
+  unavailability.
+
+**System Behavior**
+- The worker negatively acknowledges the message.
+- The message is routed to the retry queue.
+- After a delay, the message is re-delivered to the main queue.
+
+**Guarantees Preserved**
+- At-least-once processing
+- Eventual delivery if the external system recovers
+
+### Worker Crash After Message Receipt
+
+**What Happens**
+- A worker crashes after receiving a message but before acknowledging it.
+
+**System Behavior**
+- RabbitMQ re-delivers the message to another worker.
+- Idempotency guarantees prevent duplicate notifications.
+
+**Guarantees Preserved**
+- No message loss
+- No duplicate side effects
+
+### Retry Exhaustion (Poison Message)
+
+**What Happens**
+- A message repeatedly fails processing beyond the maximum retry limit.
+
+**System Behavior**
+- The message is routed to the Dead Letter Queue.
+- Normal message processing continues uninterrupted.
+
+**Guarantees Preserved**
+- Failure isolation
+- System stability
+
+### Dead Letter Queue Handling
+
+Messages routed to the Dead Letter Queue are not retried automatically.
+
+They can be:
+- Inspected for root cause analysis
+- Fixed and manually replayed
+- Archived for audit or debugging purposes
+
+This ensures that poison messages do not impact system throughput.
+
+### Duplicate Message Delivery
+
+**What Happens**
+- RabbitMQ delivers the same message more than once.
+
+**System Behavior**
+- Database-level idempotency constraints ensure notifications are sent
+  only once per event and channel.
+
+**Guarantees Preserved**
+- Exactly-once side effects despite at-least-once delivery
+
+

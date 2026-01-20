@@ -98,3 +98,69 @@ PostgreSQL, RabbitMQ, and Redis.
 This architecture prioritizes reliability, correctness, and operational
 simplicity over premature optimization, mirroring real-world backend
 systems.
+
+## Message Queue Topology
+
+The system uses RabbitMQ to decouple event ingestion from notification
+processing. Reliability is achieved through explicit queue topology
+rather than complex application logic.
+
+### Exchange
+- Name: `events.exchange`
+- Type: `fanout`
+- Durable: true
+
+The fanout exchange allows future consumers to subscribe to events
+without changing the producer.
+
+### Queues
+
+#### Main Queue (`events.main.queue`)
+- Durable: true
+- Manual acknowledgements enabled
+- Primary queue consumed by worker services
+
+#### Retry Queue (`events.retry.queue`)
+- Used to introduce delay before retrying failed messages
+- Configured using message TTL and dead-lettering
+- Messages are automatically routed back to the main queue after delay
+
+#### Dead Letter Queue (`events.dlq.queue`)
+- Captures messages that exceed retry limits or fail permanently
+- Used for inspection, debugging, and manual replay
+
+## Retry and Backoff Strategy
+
+The system implements retries using RabbitMQ dead-lettering and message
+TTL rather than synchronous retries in application code.
+
+- Failed messages are negatively acknowledged (`NACK`)
+- Messages are routed to a retry queue with a configured delay
+- After the delay expires, messages are re-delivered to the main queue
+- Retry attempts are tracked using message headers
+
+The maximum retry count is bounded to prevent infinite retry loops.
+Messages exceeding this limit are routed to the Dead Letter Queue.
+
+## Acknowledgement Semantics
+
+Workers acknowledge messages only after successful notification delivery.
+
+- `ACK` is sent only after side effects complete successfully
+- `NACK` is used for recoverable failures
+- Messages are never acknowledged prematurely
+
+This ensures that message loss does not occur even if a worker crashes
+mid-processing.
+
+## Design Trade-offs
+
+- The system favors at-least-once delivery over exactly-once semantics
+- Idempotency is enforced at the database level rather than the queue
+- Message ordering is not guaranteed
+- Queue-level retries reduce application complexity
+
+These trade-offs prioritize reliability, simplicity, and operational
+clarity.
+
+
