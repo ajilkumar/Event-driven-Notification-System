@@ -1,5 +1,11 @@
 import { Channel, ConsumeMessage } from "amqplib";
 import { getRetryCount, incrementRetry } from "../utils/retry";
+import { sendEmail, sendWebhook } from "../handlers/notification.handler";
+import {
+  createNotificationIfNotExists,
+  markNotificationSent,
+  markNotificationFailed,
+} from "../db/notification.repo";
 
 const MAX_RETRIES = 5;
 
@@ -41,6 +47,24 @@ export async function startConsumer(channel: Channel) {
 }
 
 async function processEvent(event: any) {
-  // placeholder – real logic in Phase 4
-  console.log("Processing event:", event.type);
+  const eventId = event.id;
+
+  const channels: Array<"EMAIL" | "WEBHOOK"> = ["EMAIL", "WEBHOOK"];
+
+  for (const channel of channels) {
+    try {
+      // await createNotificationIfNotExists(eventId, channel);
+
+      if (channel === "EMAIL") {
+        await sendEmail(event);
+      } else {
+        await sendWebhook(event);
+      }
+
+      await markNotificationSent(eventId, channel);
+    } catch (err) {
+      await markNotificationFailed(eventId, channel);
+      throw err; // triggers retry logic from Phase 3
+    }
+  }
 }
