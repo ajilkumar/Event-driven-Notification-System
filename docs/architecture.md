@@ -142,6 +142,12 @@ TTL rather than synchronous retries in application code.
 The maximum retry count is bounded to prevent infinite retry loops.
 Messages exceeding this limit are routed to the Dead Letter Queue.
 
+## Graceful Shutdown (Resilience)
+To prevent data loss during deployments:
+- The system handles `SIGTERM` and `SIGINT` signals.
+- **Event API**: Stops accepting new connections but finishes existing requests.
+- **Worker**: Stops consuming new messages. Waits for active handlers (e.g., sending email) to complete before closing the database and queue connections.
+
 ## Acknowledgement Semantics
 
 Workers acknowledge messages only after successful notification delivery.
