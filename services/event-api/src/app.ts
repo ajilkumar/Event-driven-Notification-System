@@ -1,8 +1,8 @@
 import express from "express";
 import { json } from "body-parser";
-import { requestIdMiddleware } from "./midddleware/request-id.middleware";
+import { requestIdMiddleware } from "./middleware/request-id.middleware";
 import { eventsRouter } from "./routes/event.route";
-import { errorMiddleware } from "./midddleware/error.middleware";
+import { errorMiddleware } from "./middleware/error.middleware";
 
 export function createApp() {
   const app = express();
