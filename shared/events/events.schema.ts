@@ -3,6 +3,6 @@ export interface EventEnvelope<TPayload = unknown> {
   type: string;
   version: number;
   payload: TPayload;
-  occuredAT: string;
+  occurredAT: string;
   correlation?: string;
 }

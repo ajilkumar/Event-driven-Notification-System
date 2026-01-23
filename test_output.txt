@@ -1,0 +1,27 @@
+FAIL services/event-api/src/controllers/events.controller.test.ts
+  POST /events
+    √ should accept a valid event (125 ms)
+    × should reject invalid event schema (24 ms)
+
+  ● POST /events › should reject invalid event schema
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 500
+    Received: 400
+
+      35 |     const res = await request(app).post("/events").send(payload);
+      36 |
+    > 37 |     expect(res.status).toBe(500); // Or 400 if you had better error handling installed
+         |                        ^
+      38 |   });
+      39 | });
+      40 |
+
+      at Object.<anonymous> (services/event-api/src/controllers/events.controller.test.ts:37:24)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 passed, 2 total
+Snapshots:   0 total
+Time:        4.397 s, estimated 24 s
+Ran all test suites matching services/event-api/src/controllers/events.controller.test.ts.

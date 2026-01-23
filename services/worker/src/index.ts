@@ -10,6 +10,16 @@ async function start() {
   await startConsumer(channel);
 
   logger.info("Worker started and consuming messages");
+
+  // Graceful Shutdown
+  const shutdown = async () => {
+    logger.info("Shutting down worker...");
+    await channel.close();
+    process.exit(0);
+  };
+
+  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", shutdown);
 }
 
 start().catch((err) => {
