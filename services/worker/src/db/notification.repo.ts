@@ -32,6 +32,16 @@ export async function markNotificationFailed(
 }
 
 
-export async function createNotificationIfNotExists(){
-    // Implementation goes here
+export async function createNotificationIfNotExists(
+  eventId: string,
+  channel: "EMAIL" | "WEBHOOK"
+) {
+  await db.query(
+    `
+    INSERT INTO notifications (event_id, channel, status)
+    VALUES ($1, $2, 'PENDING')
+    ON CONFLICT (event_id, channel) DO NOTHING
+    `,
+    [eventId, channel]
+  );
 }

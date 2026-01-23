@@ -9,6 +9,10 @@ import {
 
 const MAX_RETRIES = 5;
 
+import { createLogger } from "@shared/logger";
+
+const logger = createLogger("worker");
+
 export async function startConsumer(channel: Channel) {
   channel.consume("events.main.queue", async (msg) => {
     if (!msg) return;
@@ -21,6 +25,7 @@ export async function startConsumer(channel: Channel) {
 
       channel.ack(msg);
     } catch (err) {
+      logger.error("Error processing event", { error: err });
       const retryCount = getRetryCount(msg);
 
       if (retryCount >= MAX_RETRIES) {
@@ -53,7 +58,7 @@ async function processEvent(event: any) {
 
   for (const channel of channels) {
     try {
-      // await createNotificationIfNotExists(eventId, channel);
+      await createNotificationIfNotExists(eventId, channel);
 
       if (channel === "EMAIL") {
         await sendEmail(event);

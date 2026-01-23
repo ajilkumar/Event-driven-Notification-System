@@ -2,10 +2,15 @@ import { createApp } from "./app";
 import { env } from "./config/env";
 import { verifyDatabaseConnection } from "./db";
 
+import { initPublisher } from "./queue/publisher";
+
 async function startServer() {
   try {
     await verifyDatabaseConnection();
     console.log(`Database connected successfully`);
+
+    await initPublisher();
+    console.log("RabbitMQ Publisher initialized"); // debug log
 
     const app = createApp();
 
