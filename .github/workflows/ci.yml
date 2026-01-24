@@ -54,7 +54,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Verify Event API Docker Build
-        run: docker build -t event-api ./services/event-api
+        run: docker build -t event-api -f services/event-api/Dockerfile .
 
       - name: Verify Worker Docker Build
-        run: docker build -t worker ./services/worker
+        run: docker build -t worker -f services/worker/Dockerfile .
