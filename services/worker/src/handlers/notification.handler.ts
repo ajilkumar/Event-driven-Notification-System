@@ -12,6 +12,16 @@ export async function sendEmail(event: any) {
   // UNCOMMENT the line below to simulate a crash (and test Retries/DLQ)
   // throw new Error("Manually triggered crash for testing");
 
+  // Simulation of random failure (controlled by env)
+  const failureProbability = Number(process.env.FAILURE_PROBABILITY) || 0;
+  if (Math.random() < failureProbability) {
+    logger.error("Failed to send EMAIL (Simulated Network Error)", {
+      eventId: event.id,
+      eventType: event.type,
+    });
+    throw new Error("Simulated Network Error: SMTP Unavailable");
+  }
+
   logger.info("EMAIL sent successfully", {
     eventId: event.id,
     eventType: event.type,

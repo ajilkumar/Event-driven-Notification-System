@@ -12,9 +12,12 @@ describe("Worker Notification Handler", () => {
   });
 
   it("should throw error on simulated failure", async () => {
-    jest.spyOn(Math, "random").mockReturnValue(0.1); // < 0.2, so failure
+    process.env.FAILURE_PROBABILITY = "1"; // Force failure
+    jest.spyOn(Math, "random").mockReturnValue(0.5); // Still trigger failure because probability=1
 
     const event = { id: "test-id", type: "TEST" };
     await expect(sendEmail(event)).rejects.toThrow("Simulated Network Error");
+    
+    delete process.env.FAILURE_PROBABILITY; // Clean up
   });
 });
