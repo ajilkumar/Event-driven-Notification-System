@@ -2,21 +2,20 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy shared packages needed for build
-COPY shared/logger ./shared/logger
-
-# Copy service package files
+# Copy root and ALL package files for workspace installation
+COPY package*.json ./
+COPY shared/logger/package*.json ./shared/logger/
+COPY services/event-api/package*.json ./services/event-api/
 COPY services/worker/package*.json ./services/worker/
 
-WORKDIR /app/services/worker
-
-# Install dependencies
+# Install dependencies using workspaces (from root)
 RUN npm install
 
-# Copy service source code
-COPY services/worker/ ./
+# Copy all source code
+COPY . .
 
-# Build the service
+# Build the specific service
+WORKDIR /app/services/worker
 RUN npm run build
 
 # Runtime stage
@@ -24,15 +23,16 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy shared packages needed for runtime
-COPY shared/logger ./shared/logger
-
 # Copy built artifacts and production dependencies
+COPY package*.json ./
+COPY shared/logger/package*.json ./shared/logger/
 COPY services/worker/package*.json ./services/worker/
-WORKDIR /app/services/worker
 
+# Install only production dependencies for the workspace
 RUN npm install --only=production
 
-COPY --from=builder /app/services/worker/dist ./dist
+COPY --from=builder /app/services/worker/dist ./services/worker/dist
+COPY --from=builder /app/shared/logger/ ./shared/logger/
 
+WORKDIR /app/services/worker
 CMD ["node", "dist/index.js"]

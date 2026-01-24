@@ -2,21 +2,20 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy shared packages needed for build
-COPY shared/logger ./shared/logger
-
-# Copy service package files
+# Copy root and ALL package files for workspace installation
+COPY package*.json ./
+COPY shared/logger/package*.json ./shared/logger/
 COPY services/event-api/package*.json ./services/event-api/
+COPY services/worker/package*.json ./services/worker/
 
-WORKDIR /app/services/event-api
-
-# Install dependencies - we use install here because ci can be finicky with local file deps in Docker
+# Install dependencies using workspaces (from root)
 RUN npm install
 
-# Copy service source code
-COPY services/event-api/ ./
+# Copy all source code
+COPY . .
 
-# Build the service
+# Build the specific service
+WORKDIR /app/services/event-api
 RUN npm run build
 
 # Runtime stage
@@ -24,17 +23,19 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy shared packages needed for runtime
-COPY shared/logger ./shared/logger
-
 # Copy built artifacts and production dependencies
+# In a workspace setup, it's easier to copy the whole node_modules or re-install
+COPY package*.json ./
+COPY shared/logger/package*.json ./shared/logger/
 COPY services/event-api/package*.json ./services/event-api/
-WORKDIR /app/services/event-api
 
+# Install only production dependencies for the workspace
 RUN npm install --only=production
 
-COPY --from=builder /app/services/event-api/dist ./dist
+COPY --from=builder /app/services/event-api/dist ./services/event-api/dist
+COPY --from=builder /app/shared/logger/ ./shared/logger/
 
 EXPOSE 3000
 
+WORKDIR /app/services/event-api
 CMD ["node", "dist/server.js"]
