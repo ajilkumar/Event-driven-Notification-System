@@ -43,6 +43,8 @@ jobs:
       - name: Run tests
         run: npm test
         env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: events_db
           DATABASE_URL: postgresql://postgres@localhost:5432/events_db
           RABBITMQ_URL: amqp://guest:guest@localhost:5672
           PORT: 3000
