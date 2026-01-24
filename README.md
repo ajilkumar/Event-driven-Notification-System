@@ -1,4 +1,6 @@
-# Event-Driven Notification System
+<h1 align= 'center'>
+    Event Driven Notification System
+</h1>
 
 ![NodeJS](https://img.shields.io/badge/Node.js-20232A?style=for-the-badge&logo=node.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
