@@ -44,6 +44,9 @@ jobs:
         run: npm test
         env:
           DATABASE_URL: postgresql://postgres@localhost:5432/events_db
+          RABBITMQ_URL: amqp://guest:guest@localhost:5672
+          PORT: 3000
+          NODE_ENV: test
 
   build-check:
     runs-on: ubuntu-latest
